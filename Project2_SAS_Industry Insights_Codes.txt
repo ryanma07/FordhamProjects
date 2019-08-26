@@ -1,0 +1,633 @@
+/* Team Member: Ruifeng Ma, Jiayang Zheng, Yumeng Liu.
+   Section: MDM-002.
+   Datafile Name: SASdata.xlsx*/
+
+/* This is the code for our first analysis, paired t-test*/
+
+Proc import datafile = "C:\SAS\SASdata.xlsx" dbms = xlsx out = mydata replace;
+
+/*clean the data and choose the category we chose(food and dining), and change the data type to numerical type*/
+Data Branddata;
+    set mydata;
+    if category = "Food and dining";
+    if AuthenticOriginalpct= . then delete;
+    if UsagePrct= . then delete;
+    if NewnessToCategory = 0 then delete;
+    if FamiliarityWithCategory = 0 then delete;
+    if NewnessToCategory = . then delete;
+    if FamiliarityWithCategory = . then delete;
+    if Involvement = 0 then delete;
+    if Involvement = . then delete;
+    if Complexity = 0 then delete;
+    if Complexity = . then delete;
+    if Visibility = 0 then delete;
+    if Visibility = . then delete;
+    if PerceivedRisk = 0 then delete;
+    if PerceivedRisk = . then delete;
+    if Excitement = 0 then delete;
+    if Excitement = . then delete;
+    Excitement_n = input(Excitement, best5.);
+    Complexity_n = input(Complexity, best5.);
+    Visibility_n = input(Visibility, best5.);
+    PerceivedRisk_n = input(PerceivedRisk, best5.);
+    AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+    Prestigiouspct_n=input(Prestigiouspct,best5.);
+    Progressivepct_n=input(Progressivepct,best5.);
+    SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+    Straightforwardpct_n=input(Straightforwardpct,best5.);
+    Stylishpct_n=input(Stylishpct,best5.);
+    TraditionalPct_n=input(TraditionalPct,best5.);
+    Trendypct_n=input(Trendypct,best5.);
+    Trustworthypct_n=input(Trustworthypct,best5.);
+    Unapproachablepct_n=input(Unapproachablepct,best5.);
+    UpToDatepct_n=input(UpToDatepct,best5.);
+    UpperClasspct_n=input(UpperClasspct,best5.);
+    Visionarypct_n=input(Visionarypct,best5.);
+    UsagePrct_n=input(UsagePrct,best5.);
+
+Proc ttest data = Branddata;
+    class Product;
+    var PerceivedRisk_n Excitement_n AuthenticOriginalpct_n Stylishpct_n Trendypct_n Trustworthypct_n;
+
+Run;
+
+
+
+/* This is the code for our second analysis, correlation anlaysis in two category among seven attributes*/
+
+
+Proc import datafile = "C:\SAS\Data.xlsx" dbms = xlsx out = mydata replace;
+
+/*clean the data and set the category as "media and entertainment"*/
+Data Branddata;
+    set mydata;
+    if category = "Media and entertainment";
+    if NewnessToCategory = 0 then delete;
+    if FamiliarityWithCategory = 0 then delete;
+    if NewnessToCategory = . then delete;
+    if FamiliarityWithCategory = . then delete;
+    if Involvement = 0 then delete;
+    if Involvement = . then delete;
+    If Complexity = 0 then delete;
+    if Complexity = . then delete;
+    If Visibility = 0 then delete;
+    If Visibility = . then delete;
+    if PerceivedRisk = 0 then delete;
+    If PerceivedRisk = . then delete;
+    If Excitement = 0 then delete;
+    If Excitement = . then delete;
+    Excitement_n = input(Excitement, best5.);
+    Complexity_n = input(Complexity, best5.);
+    Visibility_n = input(Visibility, best5.);
+    PerceivedRisk_n = input(PerceivedRisk, best5.);
+    Competence_n = input(competence,best5.);
+
+PROC Means data = Branddata;
+    VAR NewnessToCategory FamiliarityWithCategory Involvement Complexity_n Visibility_n PerceivedRisk_n Excitement_n Competence_n;
+
+/*run the coorelation model*/
+
+PROC Corr data=Branddata;
+    VAR  FamiliarityWithCategory Involvement Complexity_n Visibility_n PerceivedRisk_n Excitement_n;
+    with NewnessToCategory;
+
+RUN;
+
+
+
+Proc import datafile = "C:\SAS\sasdata.xlsx" dbms = xlsx out = mydata replace;
+
+/*clean the data and set the category as "food and dining"*/
+Data Branddata;
+    set mydata;
+    if category = "Food and dining";
+    if NewnessToCategory = 0 then delete;
+    if FamiliarityWithCategory = 0 then delete;
+    if NewnessToCategory = . then delete;
+    if FamiliarityWithCategory = . then delete;
+    if Involvement = 0 then delete;
+    if Involvement = . then delete;
+    If Complexity = 0 then delete;
+    if Complexity = . then delete;
+    If Visibility = 0 then delete;
+    If Visibility = . then delete;
+    if PerceivedRisk = 0 then delete;
+    If PerceivedRisk = . then delete;
+    If Excitement = 0 then delete;
+    If Excitement = . then delete;
+    Excitement_n = input(Excitement, best5.);
+    Complexity_n = input(Complexity, best5.);
+    Visibility_n = input(Visibility, best5.);
+    PerceivedRisk_n = input(PerceivedRisk, best5.);
+    Competence_n = input(competence,best5.);
+
+Proc Means data = Branddata;
+    VAR NewnessToCategory FamiliarityWithCategory Involvement Complexity_n Visibility_n PerceivedRisk_n Excitement_n Competence_n;
+
+/*run the coorelation model*/
+
+PROC Corr data=Branddata;
+    VAR  FamiliarityWithCategory Involvement Complexity_n Visibility_n PerceivedRisk_n Excitement_n Competence_n;
+    with NewnessToCategory;
+
+RUN;
+
+
+
+/* This is the code for our third analysis, multiple linear regression model analysis*/
+
+/*(1)it's the regression model between UsagePrct and 14 sentiment perceptions (1 of 4 in popularity matrix)*/  
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 8; /*Select the data in food and dining category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if UsagePrct= . then delete;	     /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+UsagePrct_n=input(UsagePrct,best5.);  /*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model UsagePrct_n=AuthenticOriginalpct_n SociallyResponsiblepct_n TraditionalPct_n Trustworthypct_n UpToDatepct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 12;/*Select the data in media and entertainment category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if UsagePrct= . then delete;  /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+UsagePrct_n=input(UsagePrct,best5.);/*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model UsagePrct_n=AuthenticOriginalpct_n SociallyResponsiblepct_n UpperClasspct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+
+
+/*(2)it's the regression model between PreferencePrct and 14 sentiment perceptions (2 of 4 in popularity matrix)*/  
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 8; /*Select the data in food and dining category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if PreferencePrct= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+PreferencePrct_n=input(PreferencePrct,best5.);
+/*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model PreferencePrct_n=AuthenticOriginalpct_n SociallyResponsiblepct_n
+TraditionalPct_n Trustworthypct_n UpToDatepct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 12; /*Select the data in media and entertainment category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if PreferencePrct= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+PreferencePrct_n=input(PreferencePrct,best5.);/*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model PreferencePrct_n=AuthenticOriginalpct_n Unapproachablepct_n UpToDatepct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+
+
+/*(3)it's the regression model between Knowledge and 14 sentiment perceptions (3 of 4 in popularity matrix)*/  
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 8; /*Select the data in food and dining category*/
+if AuthenticOriginalpct= . then delete; /*Delete the data where independent variables are missing*/
+if Knowledge= . then delete; /*Delete the data where dependent variables are missing*/
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+Knowledge_n=input(Knowledge,best5.);/*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model Knowledge_n=AuthenticOriginalpct_n Trendypct_n TraditionalPct_n UpToDatepct_n Visionarypct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 12; /*Select the data in media and entertainment category*/
+if AuthenticOriginalpct= . then delete; /*Delete the data where independent variables are missing*/
+if Knowledge= . then delete; /*Delete the data where dependent variables are missing*/
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+Knowledge_n=input(Knowledge,best5.); /*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model Knowledge_n=AuthenticOriginalpct_n Prestigiouspct_n SociallyResponsiblepct_n TraditionalPct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+
+/*(4)it's the regression model between Gaining Popularity Prct and 14 sentiment perceptions (4 of 4 in popularity matrix)*/
+
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 8; /*Select the data in food and dining category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if GainingPopularityPct= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+GainingPopularityPct_n=input(GainingPopularityPct,best5.);/*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model GainingPopularityPct_n=Prestigiouspct_n SociallyResponsiblepct_n Trendypct_n TraditionalPct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 12; /*Select the data in media and entertainment category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if GainingPopularityPct= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+GainingPopularityPct_n=input(GainingPopularityPct,best5.); /*Change the data type of independent variables to numerical type*/
+
+
+PROC reg data=project;
+Model GainingPopularityPct_n=AuthenticOriginalpct_n Progressivepct_n TraditionalPct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+
+/*(5)it's the regression model between TotalRegrad and 14 sentiment perceptions (1 of 4 in brand value matrix)*/
+  
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 8; /*Select the data in food and dining category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if RegardMS= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+RegardMS_n=input(RegardMS,best5.); /*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model RegardMS_n=AuthenticOriginalpct_n Straightforwardpct_n Trendypct_n TraditionalPct_n Trustworthypct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 12; /*Select the data in media and entertainment category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if RegardMS= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+RegardMS_n=input(RegardMS,best5.); /*Change the data type of independent variables to numerical type*/
+
+
+PROC reg data=project;
+Model RegardMS_n=AuthenticOriginalpct_n SociallyResponsiblepct_n Unapproachablepct_n UpToDatepct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+/*(6)it's the regression model between Overall Assets and 14 sentiment perceptions (2 of 4 in brand value matrix)*/
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 8; /*Select the data in food and dining category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if BrandAsset= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+BrandAsset_n=input(BrandAsset,best5.); /*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model BrandAsset_n=AuthenticOriginalpct_n Stylishpct_n Trustworthypct_n UpToDatepct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 12; /*Select the data in media and entertainment category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if BrandAsset= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+BrandAsset_n=input(BrandAsset,best5.); /*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model BrandAsset_n=AuthenticOriginalpct_n Progressivepct_n SociallyResponsiblepct_n Unapproachablepct_n Visionarypct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+
+/*(7)it's the regression model between BestBrandPct and 14 sentiment perceptions (3 of 4 in brand value matrix)*/
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 8; /*Select the data in food and dining category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if BestBrandPct= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+BestBrandPct_n=input(BestBrandPct,best5.);/*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model BestBrandPct_n=AuthenticOriginalpct_n Trendypct_n Trustworthypct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 12; /*Select the data in media and entertainment category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if BestBrandPct= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+BestBrandPct_n=input(BestBrandPct,best5.); /*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model BestBrandPct_n=CaresCustomersPct_n AuthenticOriginalpct_n UpToDatepct_n Visionarypct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+/*(8)it's the regression model between GoodValue and 14 sentiment perceptions (4 of 4 in brand value matrix)*/
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 8; /*Select the data in food and dining category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if BestBrandPct= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+GoodValuePct_n=input(GoodValuePct,best5.); /*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model GoodValuePct_n=Prestigiouspct_n Progressivepct_n Straightforwardpct_n Trustworthypct_n UpperClasspct_n Visionarypct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
+
+PROC import datafile='C:\SAS\sasdata.xlsx' dbms=xlsx Replace OUT=project;
+
+DATA project;
+set project;
+if categorycode= 12; /*Select the data in media and entertainment category*/
+if CaresCustomersPct= . then delete; /*Delete the data where independent variables are missing*/
+if GoodValuePct= . then delete; /*Delete the data where dependent variables are missing*/
+CaresCustomersPct_n=input(CaresCustomersPct,best5.);
+AuthenticOriginalpct_n=input(AuthenticOriginalpct,best5.);
+Prestigiouspct_n=input(Prestigiouspct,best5.);
+Progressivepct_n=input(Progressivepct,best5.);
+SociallyResponsiblepct_n=input(SociallyResponsiblepct,best5.);
+Straightforwardpct_n=input(Straightforwardpct,best5.);
+Stylishpct_n=input(Stylishpct,best5.);
+TraditionalPct_n=input(TraditionalPct,best5.);
+Trendypct_n=input(Trendypct,best5.);
+Trustworthypct_n=input(Trustworthypct,best5.);
+Unapproachablepct_n=input(Unapproachablepct,best5.);
+UpToDatepct_n=input(UpToDatepct,best5.);
+UpperClasspct_n=input(UpperClasspct,best5.);
+Visionarypct_n=input(Visionarypct,best5.);
+GoodValuePct_n=input(GoodValuePct,best5.); /*Change the data type of independent variables to numerical type*/
+
+PROC reg data=project;
+Model GoodValuePct_n=CaresCustomersPct_n SociallyResponsiblepct_n UpToDatepct_n;
+/*Run regression model analysis, the selected variables are based on several tries of all the independent variables according to p-value*/
+
+RUN;
